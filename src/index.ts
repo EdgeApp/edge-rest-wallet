@@ -5,6 +5,7 @@ import {
   EdgeAccount,
   EdgeContext,
   EdgeCurrencyWallet,
+  EdgeTransaction,
   lockEdgeCorePlugins,
   makeEdgeContext
 } from 'edge-core-js'
@@ -47,6 +48,25 @@ async function main(): Promise<void> {
         walletInfo.id
       )
       res.json(wallet.balances)
+    } catch (e) {
+      res.status(500).send('Server error in waitForCurrencyWallet')
+    }
+  })
+
+  // Get wallet transactions based on type of wallet
+  app.get('/transactions/', async (req, res, next) => {
+    const type = req.query.type
+    const walletInfo = account.getFirstWalletInfo(`wallet:${type}`)
+    if (walletInfo == null) {
+      res.status(404).send(`${type} is invalid`)
+      return
+    }
+    try {
+      const wallet: EdgeCurrencyWallet = await account.waitForCurrencyWallet(
+        walletInfo.id
+      )
+      const transactions: EdgeTransaction[] = await wallet.getTransactions()
+      res.send(transactions)
     } catch (e) {
       res.status(500).send('Server error in waitForCurrencyWallet')
     }
