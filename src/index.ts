@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser'
+import cors from 'cors'
 import {
   addEdgeCorePlugins,
   EdgeAccount,
@@ -31,6 +32,7 @@ async function main(): Promise<void> {
   )
 
   app.use(bodyParser.json({ limit: '1mb' }))
+  app.use(cors())
 
   // Getting wallet balances based on type of wallet
   app.get('/balances/', async (req, res, next) => {
@@ -44,7 +46,7 @@ async function main(): Promise<void> {
       const wallet: EdgeCurrencyWallet = await account.waitForCurrencyWallet(
         walletInfo.id
       )
-      res.send(wallet.balances)
+      res.json(wallet.balances)
     } catch (e) {
       res.status(500).send('Server error in waitForCurrencyWallet')
     }
