@@ -95,7 +95,7 @@ async function main(): Promise<void> {
     try {
       edgeTransaction = await wallet.makeSpend(spendInfo)
     } catch (e) {
-      res.status(404).send('Body does not match EdgeSpendInfo specification')
+      res.status(400).send('Body does not match EdgeSpendInfo specification')
     }
     try {
       const signedTx = await wallet.signTx(edgeTransaction)
