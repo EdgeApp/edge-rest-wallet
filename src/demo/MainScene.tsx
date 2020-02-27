@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
+import 'bootstrap/dist/css/bootstrap.min.css'
+
 import React from 'react'
-import { Button, Form } from 'react-bootstrap'
+import { Button, Col, Container, Form, Row } from 'react-bootstrap'
 
 interface MainSceneState {
-  balances: []
+  balances: {}
   type: string
+  transactions: []
 }
 
 export class MainScene extends React.Component<{}, MainSceneState> {
@@ -12,8 +15,25 @@ export class MainScene extends React.Component<{}, MainSceneState> {
     super(props)
     this.state = {
       type: '',
-      balances: []
+      balances: {},
+      transactions: []
     }
+  }
+
+  getTransactions = (type: string): void => {
+    fetch('http://localhost:8008/transactions/?type=' + type, { method: 'GET' })
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        }
+      })
+      .then(transactionsArray => {
+        this.setState({ transactions: transactionsArray })
+      })
+      .catch(e => {
+        console.log(e)
+      })
+    console.log('GetTransactions is called', this.state.transactions)
   }
 
   getBalances = (type: string): void => {
@@ -32,9 +52,16 @@ export class MainScene extends React.Component<{}, MainSceneState> {
     console.log('GetBalances is called', this.state.balances)
   }
 
-  handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+  handleBalancesClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
     this.getBalances(this.state.type)
-    console.log('Handle Click with type', this.state.type)
+    console.log('Handle Balances Click with type', this.state.type)
+  }
+
+  handleTransactionsClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
+    this.getTransactions(this.state.type)
+    console.log('Handle Transactions Click with type', this.state.type)
   }
 
   handleChange = (event: any): void => {
@@ -43,6 +70,7 @@ export class MainScene extends React.Component<{}, MainSceneState> {
   }
 
   render(): React.ReactNode {
+    const { transactions, balances, type } = this.state
     return (
       <div>
         <h1> Edge Rest Wallet </h1>
@@ -53,7 +81,7 @@ export class MainScene extends React.Component<{}, MainSceneState> {
             <Form.Control
               type="text"
               placeholder="Enter Wallet Type"
-              value={this.state.type}
+              value={type}
               onChange={this.handleChange}
             />
             <Form.Text className="text-muted">
@@ -61,10 +89,46 @@ export class MainScene extends React.Component<{}, MainSceneState> {
             </Form.Text>
           </Form.Group>
         </Form>
-        <Button variant="primary" type="submit" onClick={this.handleClick}>
+        <Button
+          variant="primary"
+          type="submit"
+          onClick={this.handleBalancesClick}
+        >
           Get Balances
         </Button>
-        <div>Here are balances: {JSON.stringify(this.state.balances)}</div>
+        <div>Here are balances: {JSON.stringify(balances)}</div>
+        <Button
+          variant="primary"
+          type="submit"
+          onClick={this.handleTransactionsClick}
+        >
+          Get Transactions
+        </Button>
+        <div>
+          Here are transactions:
+          <Container>
+            <Row>
+              <Col>Currency Code:</Col>
+              <Col>Native Amount:</Col>
+              <Col>Network Fee:</Col>
+              <Col>Block Height:</Col>
+              <Col>Transaction ID:</Col>
+              <Col>Date:</Col>
+            </Row>
+            {transactions.map((transaction: any, index) => {
+              return (
+                <Row key={index}>
+                  <Col>{transaction.currencyCode}</Col>
+                  <Col>{transaction.nativeAmount}</Col>
+                  <Col>{transaction.networkFee}</Col>
+                  <Col>{JSON.stringify(transaction.blockHeight)}</Col>
+                  <Col>{transaction.txid}</Col>
+                  <Col>{JSON.stringify(new Date(transaction.date * 1000))}</Col>
+                </Row>
+              )
+            })}
+          </Container>
+        </div>
       </div>
     )
   }
