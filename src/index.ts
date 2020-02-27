@@ -5,6 +5,8 @@ import {
   EdgeAccount,
   EdgeContext,
   EdgeCurrencyWallet,
+  EdgeSpendInfo,
+  EdgeSpendTarget,
   EdgeTransaction,
   lockEdgeCorePlugins,
   makeEdgeContext
@@ -69,6 +71,33 @@ async function main(): Promise<void> {
       res.send(transactions)
     } catch (e) {
       res.status(500).send('Server error in waitForCurrencyWallet')
+    }
+  })
+
+  app.post('/spend/', async (req, res, next) => {
+    const type = req.query.type
+    const spendInfo: EdgeSpendInfo = req.body
+    const walletInfo = account.getFirstWalletInfo(`wallet:${type}`)
+    if (walletInfo == null) {
+      res.status(404).send(`${type} is invalid`)
+      return
+    }
+    const wallet: EdgeCurrencyWallet = await account.waitForCurrencyWallet(
+      walletInfo.id
+    )
+    let edgeTransaction: EdgeTransaction
+    try {
+      edgeTransaction = await wallet.makeSpend(spendInfo)
+    } catch (e) {
+      res.status(404).send('Body does not match EdgeSpendInfo specification')
+    }
+    try {
+      const signedTx = await wallet.signTx(edgeTransaction)
+      await wallet.broadcastTx(signedTx)
+      await wallet.saveTx(signedTx)
+      res.send(signedTx)
+    } catch (e) {
+      res.status(500).send('Internal server error')
     }
   })
 
