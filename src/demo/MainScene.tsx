@@ -2,12 +2,14 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import React from 'react'
-import { Button, Col, Container, Form, Row } from 'react-bootstrap'
+import { Button, Form } from 'react-bootstrap'
 
 interface MainSceneState {
   balances: {}
   type: string
   transactions: []
+  nativeAmount: string
+  publicAddress: string
 }
 
 export class MainScene extends React.Component<{}, MainSceneState> {
@@ -16,7 +18,9 @@ export class MainScene extends React.Component<{}, MainSceneState> {
     this.state = {
       type: '',
       balances: {},
-      transactions: []
+      transactions: [],
+      nativeAmount: '',
+      publicAddress: ''
     }
   }
 
@@ -34,6 +38,30 @@ export class MainScene extends React.Component<{}, MainSceneState> {
         console.log(e)
       })
     console.log('GetTransactions is called', this.state.transactions)
+  }
+
+  postTransactions = (
+    type: string,
+    nativeAmount: string,
+    publicAddress: string
+  ): void => {
+    fetch('http://localhost:8008/spend/?type=' + type, {
+      body: JSON.stringify({ spendTargets: [{ nativeAmount, publicAddress }] }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'POST'
+    })
+      .then(response => {
+        if (response.ok) {
+          this.getBalances(this.state.type)
+          this.getTransactions(this.state.type)
+        }
+      })
+      .catch(e => {
+        console.log(e)
+      })
+    console.log('postTransactions is called')
   }
 
   getBalances = (type: string): void => {
@@ -64,13 +92,43 @@ export class MainScene extends React.Component<{}, MainSceneState> {
     console.log('Handle Transactions Click with type', this.state.type)
   }
 
-  handleChange = (event: any): void => {
+  handleSpendClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    this.postTransactions(
+      this.state.type,
+      this.state.nativeAmount,
+      this.state.publicAddress
+    )
+    console.log(
+      'Handle Spend Click with type',
+      this.state.type,
+      'and native amount:',
+      this.state.nativeAmount
+    )
+  }
+
+  handleTypeChange = (event: any): void => {
     const value = event.target.value
     this.setState({ type: value })
   }
 
+  handleSpendChange = (event: any): void => {
+    const nativeAmount = event.target.value
+    this.setState({ nativeAmount })
+  }
+
+  handleAddressChange = (event: any): void => {
+    const publicAddress = event.target.value
+    this.setState({ publicAddress })
+  }
+
   render(): React.ReactNode {
-    const { transactions, balances, type } = this.state
+    const {
+      transactions,
+      balances,
+      type,
+      nativeAmount,
+      publicAddress
+    } = this.state
     return (
       <div>
         <h1> Edge Rest Wallet </h1>
@@ -82,7 +140,7 @@ export class MainScene extends React.Component<{}, MainSceneState> {
               type="text"
               placeholder="Enter Wallet Type"
               value={type}
-              onChange={this.handleChange}
+              onChange={this.handleTypeChange}
             />
             <Form.Text className="text-muted">
               Please use a valid wallet type.
@@ -97,6 +155,36 @@ export class MainScene extends React.Component<{}, MainSceneState> {
           Get Balances
         </Button>
         <div>Here are balances: {JSON.stringify(balances)}</div>
+        <Form>
+          <Form.Group>
+            <Form.Label>Amount</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="0.00"
+              name="nativeAmount"
+              value={nativeAmount}
+              onChange={this.handleSpendChange}
+            />
+            <Form.Text className="text-muted">
+              Please enter an amount.
+            </Form.Text>
+            <Form.Label>Public Address</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Public Address"
+              name="publicAddress"
+              value={publicAddress}
+              onChange={this.handleAddressChange}
+            />
+            <Form.Text className="text-muted">
+              Please enter an amount.
+            </Form.Text>
+          </Form.Group>
+        </Form>
+        <Button variant="primary" type="submit" onClick={this.handleSpendClick}>
+          Spend Transaction
+        </Button>
+        <div>To get a full list of transactions, click the button below:</div>
         <Button
           variant="primary"
           type="submit"
@@ -105,29 +193,34 @@ export class MainScene extends React.Component<{}, MainSceneState> {
           Get Transactions
         </Button>
         <div>
-          Here are transactions:
-          <Container>
-            <Row>
-              <Col>Currency Code:</Col>
-              <Col>Native Amount:</Col>
-              <Col>Network Fee:</Col>
-              <Col>Block Height:</Col>
-              <Col>Transaction ID:</Col>
-              <Col>Date:</Col>
-            </Row>
+          <table className="table table-responsive text-wrap">
+            <thead className="thead-dark">
+              <tr>
+                <th>#</th>
+                <th>Currency Code:</th>
+                <th>Native Amount:</th>
+                <th>Network Fee:</th>
+                <th>Block Height:</th>
+                <th>Date:</th>
+                <th>Transaction ID:</th>
+              </tr>
+            </thead>
             {transactions.map((transaction: any, index) => {
               return (
-                <Row key={index}>
-                  <Col>{transaction.currencyCode}</Col>
-                  <Col>{transaction.nativeAmount}</Col>
-                  <Col>{transaction.networkFee}</Col>
-                  <Col>{JSON.stringify(transaction.blockHeight)}</Col>
-                  <Col>{transaction.txid}</Col>
-                  <Col>{JSON.stringify(new Date(transaction.date * 1000))}</Col>
-                </Row>
+                <tbody key={index}>
+                  <tr>
+                    <th scope="row">{index + 1}</th>
+                    <td>{transaction.currencyCode}</td>
+                    <td>{transaction.nativeAmount}</td>
+                    <td>{transaction.networkFee}</td>
+                    <td>{JSON.stringify(transaction.blockHeight)}</td>
+                    <td>{JSON.stringify(new Date(transaction.date * 1000))}</td>
+                    <td className="text-wrap span2">{transaction.txid}</td>
+                  </tr>
+                </tbody>
               )
             })}
-          </Container>
+          </table>
         </div>
       </div>
     )
