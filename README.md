@@ -47,7 +47,7 @@ sudo service edgeRest stop
 sudo forever-service delete edgeRest
 ```
 
-# Manual Testing
+## Manual Testing
 
 `curl http://localhost:80/balances/?type=bitcoin`
 
