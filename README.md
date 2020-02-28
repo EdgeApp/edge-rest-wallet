@@ -49,6 +49,19 @@ sudo service wallet stop
 sudo forever-service delete wallet
 ```
 
+## Manage server using forever-service
+```sh
+# install:
+sudo forever-service install edgeRest --script lib/index.js --start
+
+# manage:
+sudo service edgeRest restart
+sudo service edgeRest stop
+
+# uninstall:
+sudo forever-service delete edgeRest
+```
+
 ## Demo app
 
 Run `yarn demo` to launch the demo app in your web browser.

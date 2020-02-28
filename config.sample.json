@@ -1,3 +1,11 @@
 {
-  "apiKey": "your-key-here"
+  "apiKey":"",
+  "appId": "",
+  "plugins": {
+    "bitcoin": true,
+    "bitcoincash": true
+  },
+  "username": "",
+  "password": "",
+  "httpPort":
 }
