@@ -4,9 +4,9 @@
 
 This repository implements a simple API for accessing a wallet on a web server. This can be useful for automated payouts, promotions, e-commerce, and various similar things.
 
-We make this code available for free, but it does require an Edge SDK API key. Please copy `config.sample.json` to `config.json` and add your API key in there.
+We make this code available for free, but it does require an Edge SDK API key. We recommend closing external ports for security to prevent outside access and should only be used on your local server. Please copy `config.sample.json` to `config.json` and add your API key in there.
 
-## Setup
+## Install production
 
 Install Node
 
@@ -31,25 +31,10 @@ Clone Repo
 git clone https://github.com/EdgeApp/edge-rest-wallet.git
 ```
 
-## REST API
-
-To launch the REST API, just type `yarn start`.
-
-You can also build the server code by running `yarn build`, which puts its output in the `lib` folder. You can then use `forever-service` or similar tools to install the software on your server machine.
-
-```sh
-# install:
-sudo forever-service install wallet --script lib/index.js --start
-
-# manage:
-sudo service wallet restart
-sudo service wallet stop
-
-# uninstall:
-sudo forever-service delete wallet
-```
-
 ## Manage server using forever-service
+
+ You can then use `forever-service` or similar tools to install the software on your server machine.
+
 ```sh
 # install:
 sudo forever-service install edgeRest --script lib/index.js --start
@@ -61,6 +46,51 @@ sudo service edgeRest stop
 # uninstall:
 sudo forever-service delete edgeRest
 ```
+
+## Manual Testing
+
+`curl http://localhost:80/balances/?type=bitcoin`
+
+## API Docs
+
+```sh
+# get balances
+$.get('/balances/?type=' + type)
+  .then(function(d) {console.log(d)})
+  {
+    "balance": {"BTC": "1100"}
+  }
+
+# get transactions
+$.get('/transactions/?type=' + type)
+  .then(function(d) {console.log(d)})
+  {
+    [{"blockHeight":123456,
+    "date":"2020-02-26T21:15:09.749Z",
+    "txid":"XXXXX",
+    "nativeAmount":"1100",
+    "networkFee":"0",
+    "currencyCode":"BTC"}]
+  }
+
+# spend
+$.post('/spend/?type=' + type, ({ spendTargets: [{ nativeAmount, publicAddress }])
+  .then(function(d) {console.log(d)})
+  {
+    [{"blockHeight":123456,
+    "date":"2020-02-26T21:15:09.749Z",
+    "txid":"XXXXX",
+    "nativeAmount":"1100",
+    "networkFee":"0",
+    "currencyCode":"BTC"}]
+  }
+```
+
+## REST API
+
+To launch the REST API, just type `yarn start`.
+
+You can also build the server code by running `yarn build`, which puts its output in the `lib` folder.
 
 ## Demo app
 
