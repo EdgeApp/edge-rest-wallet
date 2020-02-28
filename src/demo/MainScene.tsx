@@ -215,7 +215,7 @@ export class MainScene extends React.Component<{}, MainSceneState> {
                     <td>{transaction.networkFee}</td>
                     <td>{JSON.stringify(transaction.blockHeight)}</td>
                     <td>{JSON.stringify(new Date(transaction.date * 1000))}</td>
-                    <td className="text-wrap span2">{transaction.txid}</td>
+                    <td>{transaction.txid}</td>
                   </tr>
                 </tbody>
               )
