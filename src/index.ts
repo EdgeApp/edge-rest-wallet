@@ -68,7 +68,13 @@ async function main(): Promise<void> {
         walletInfo.id
       )
       const transactions: EdgeTransaction[] = await wallet.getTransactions()
-      res.send(transactions)
+      const cleanTransactions = transactions.filter(value => {
+        delete value.wallet
+        delete value.amountSatoshi
+        delete value.otherParams.debugInfo
+        return value
+      })
+      res.send(cleanTransactions)
     } catch (e) {
       res.status(500).send('Server error in waitForCurrencyWallet')
     }
@@ -89,7 +95,7 @@ async function main(): Promise<void> {
     try {
       edgeTransaction = await wallet.makeSpend(spendInfo)
     } catch (e) {
-      res.status(404).send('Body does not match EdgeSpendInfo specification')
+      res.status(400).send('Body does not match EdgeSpendInfo specification')
     }
     try {
       const signedTx = await wallet.signTx(edgeTransaction)
