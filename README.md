@@ -53,37 +53,68 @@ sudo forever-service delete edgeRest
 
 ## API Docs
 
+## Get a balance for a wallet
 ```sh
-# get balances
-$.get('/balances/?type=' + type)
+# Make sure to add the right type of cryptocurrency wallet plugins to your config.json file so you can access the type (Ex: "plugins": {"bitcoin": true})
+$.get('http://localhost:$PORT/balances/?type=$TYPE')
   .then(function(d) {console.log(d)})
-  {
-    "balance": {"BTC": "1100"}
-  }
 
-# get transactions
-$.get('/transactions/?type=' + type)
-  .then(function(d) {console.log(d)})
-  {
-    [{"blockHeight":123456,
-    "date":"2020-02-26T21:15:09.749Z",
-    "txid":"XXXXX",
-    "nativeAmount":"1100",
-    "networkFee":"0",
-    "currencyCode":"BTC"}]
-  }
+# balances example
+await fetch('http://localhost:8008/balances/?type=bitcoin', { method: 'GET' })
 
-# spend
-$.post('/spend/?type=' + type, ({ spendTargets: [{ nativeAmount, publicAddress }])
+
+# balances result
+>    {"BTC": "1100"}
+```
+## Get a list of transactions for a wallet
+```sh
+$.get('http://localhost:$PORT/transactions/?type=$TYPE')
   .then(function(d) {console.log(d)})
-  {
-    [{"blockHeight":123456,
-    "date":"2020-02-26T21:15:09.749Z",
-    "txid":"XXXXX",
-    "nativeAmount":"1100",
-    "networkFee":"0",
-    "currencyCode":"BTC"}]
-  }
+
+# transactions example
+await fetch('http://localhost:8008/transactions/?type=bitcoin', { method: 'GET' })
+
+# transactions result
+>  [{
+>    [{"blockHeight":619132,
+>    "date":1582751709.749,
+>    "ourReceiveAddresses": [
+            "3JVeTHattdtGBAzWskiLzjeuojTb4Rjuui"
+        ]
+>    "txid":"6e7dcff41bd6176e3573249ef8e5a6a0be79e26a911ee1ac01669f04714aac23",
+>    "nativeAmount":"1100",
+>    "networkFee":"0",
+>    "currencyCode":"BTC"}]
+>  }]
+```
+## Send cryptocurrency from a wallet to a public address
+```sh
+# nativeAmount is in satoshi so this will need to be multiplied by 100,000,000, see example for reference
+
+$.post('http://localhost:$PORT/spend/?type=$TYPE', ({ spendTargets: [{ nativeAmount, publicAddress }])
+
+# spend .000011 bitcoin to address 3JVeTHattdtGBAzWskiLzjeuojTb4Rjuui
+await fetch('http://localhost:8008/spend/?type=bitcoin', {
+  body: JSON.stringify({ spendTargets: [{ "1100", "3JVeTHattdtGBAzWskiLzjeuojTb4Rjuui" }] }),
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  method: 'POST'
+  })
+
+# spend result
+> {
+>     "ourReceiveAddresses": [
+>        "qqrzxway5u26205mzz5hk5mqerer9dxf8v0jqum5vf"
+>    ],
+>    "currencyCode": "BCH",
+>    "txid": "2eea81e5bd42ad8ee5fde9a2923d3e8ec60914ae974071187aa197d4a45af341",
+>    "date": 1583270341.543,
+>    "blockHeight": 0,
+>    "nativeAmount": "-11908",
+>    "networkFee": "908",
+>    "signedTx": "01000000011152fb90c4eeee7d97a7e4ec58647f0300c0d2a085e4cdfa291ae75865cebfd2010000006b48304502210099d8df18063a8ff865c7638bef8109e83067c8420cf06066bd6c93524392f01602202dc4e57174d3667b421afc3ae4ef1b1eaf12c23c3df74464f4ff3dbd18f118d04121020df58681fe35241fb04863933f47a148f72fab6040255d8059500968e1f5cb3cffffffff02f82a0000000000001976a9143a92370920c0a20f126a6778d1700eb9e970695b88ac355b1c00000000001976a91406233ba4a715a53e9b10a97b5360c8f232b4c93b88ac00000000"
+>}
 ```
 
 ## REST API
