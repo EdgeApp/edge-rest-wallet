@@ -6,7 +6,6 @@ import {
   EdgeContext,
   EdgeCurrencyWallet,
   EdgeSpendInfo,
-  EdgeSpendTarget,
   EdgeTransaction,
   lockEdgeCorePlugins,
   makeEdgeContext
