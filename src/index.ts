@@ -30,7 +30,8 @@ async function main(): Promise<void> {
   // Log in to some user:
   const account: EdgeAccount = await context.loginWithPassword(
     CONFIG.username,
-    CONFIG.password
+    CONFIG.password,
+    { otpKey: CONFIG.otpKey ?? undefined }
   )
 
   app.use(bodyParser.json({ limit: '1mb' }))
