@@ -69,8 +69,9 @@ async function main(): Promise<void> {
       const transactions: EdgeTransaction[] = await wallet.getTransactions()
       const cleanTransactions = transactions.filter(value => {
         delete value.wallet
+        // @ts-expect-error
         delete value.amountSatoshi
-        delete value.otherParams.debugInfo
+        if (value.otherParams != null) delete value.otherParams.debugInfo
         return value
       })
       res.send(cleanTransactions)
@@ -95,6 +96,7 @@ async function main(): Promise<void> {
       edgeTransaction = await wallet.makeSpend(spendInfo)
     } catch (e) {
       res.status(400).send('Body does not match EdgeSpendInfo specification')
+      return
     }
     try {
       const signedTx = await wallet.signTx(edgeTransaction)
