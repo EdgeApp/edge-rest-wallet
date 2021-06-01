@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
 import 'bootstrap/dist/css/bootstrap.min.css'
 
-import React from 'react'
+import * as React from 'react'
 import { Button, Form } from 'react-bootstrap'
 
 interface MainSceneState {
@@ -122,13 +121,8 @@ export class MainScene extends React.Component<{}, MainSceneState> {
   }
 
   render(): React.ReactNode {
-    const {
-      transactions,
-      balances,
-      type,
-      nativeAmount,
-      publicAddress
-    } = this.state
+    const { transactions, balances, type, nativeAmount, publicAddress } =
+      this.state
     return (
       <div>
         <h1> Edge Rest Wallet </h1>

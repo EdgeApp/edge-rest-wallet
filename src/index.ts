@@ -39,7 +39,7 @@ async function main(): Promise<void> {
 
   // Getting wallet balances based on type of wallet
   app.get('/balances/', async (req, res, next) => {
-    const type = req.query.type
+    const type: string = req.query.type
     const walletInfo = account.getFirstWalletInfo(`wallet:${type}`)
     if (walletInfo == null) {
       res.status(404).send(`${type} is invalid`)
@@ -57,7 +57,7 @@ async function main(): Promise<void> {
 
   // Get wallet transactions based on type of wallet
   app.get('/transactions/', async (req, res, next) => {
-    const type = req.query.type
+    const type: string = req.query.type
     const walletInfo = account.getFirstWalletInfo(`wallet:${type}`)
     if (walletInfo == null) {
       res.status(404).send(`${type} is invalid`)
@@ -82,7 +82,7 @@ async function main(): Promise<void> {
   })
 
   app.post('/spend/', async (req, res, next) => {
-    const type = req.query.type
+    const type: string = req.query.type
     const spendInfo: EdgeSpendInfo = req.body
     const walletInfo = account.getFirstWalletInfo(`wallet:${type}`)
     if (walletInfo == null) {
