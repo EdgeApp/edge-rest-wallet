@@ -13,6 +13,7 @@ import bitcoinPlugins from 'edge-currency-bitcoin'
 import express, { Request, Response } from 'express'
 
 import CONFIG from '../../config.json'
+import { checkCreateUser } from '../util/validations'
 
 addEdgeCorePlugins(bitcoinPlugins)
 lockEdgeCorePlugins()
@@ -51,6 +52,7 @@ async function main(): Promise<void> {
     ) => {
       const { username, pin, password } = req.body
       try {
+        checkCreateUser(username, password, pin)
         res.json(await context.createAccount(username, password, pin))
         return
       } catch (error) {
