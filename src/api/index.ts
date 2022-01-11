@@ -1,4 +1,3 @@
-import bodyParser from 'body-parser'
 import cors from 'cors'
 import {
   addEdgeCorePlugins,
@@ -11,12 +10,18 @@ import {
   makeEdgeContext
 } from 'edge-core-js'
 import bitcoinPlugins from 'edge-currency-bitcoin'
-import express from 'express'
+import express, { Request, Response } from 'express'
 
 import CONFIG from '../../config.json'
+
 addEdgeCorePlugins(bitcoinPlugins)
 lockEdgeCorePlugins()
 
+interface CreateAccountRequest {
+  username: string
+  password: string
+  pin: string
+}
 async function main(): Promise<void> {
   const app = express()
 
@@ -34,8 +39,25 @@ async function main(): Promise<void> {
     { otpKey: CONFIG.otpKey ?? undefined }
   )
 
-  app.use(bodyParser.json({ limit: '1mb' }))
+  app.use(express.json())
   app.use(cors())
+
+  // Create Account
+  app.post(
+    '/accounts/',
+    async (
+      req: Request<{}, {}, CreateAccountRequest>,
+      res: Response<EdgeAccount | string>
+    ) => {
+      const { username, pin, password } = req.body
+      try {
+        res.json(await context.createAccount(username, password, pin))
+        return
+      } catch (error) {
+        res.status(400).send(error.message)
+      }
+    }
+  )
 
   // Getting wallet balances based on type of wallet
   app.get('/balances/', async (req, res, next) => {
