@@ -8,5 +8,14 @@
   "username": "",
   "password": "",
   "otpKey": null,
-  "httpPort": 8888
+  "httpPort": 8888,
+  "httpProtocol": "",
+  "httpApiDev": "",
+  "httpApiProd": "",
+  "httpCollection": {
+    "accounts": "",
+    "balances": "",
+    "transactions": "",
+    "spend": ""
+  }
 }

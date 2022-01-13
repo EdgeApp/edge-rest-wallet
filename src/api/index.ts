@@ -45,7 +45,7 @@ async function main(): Promise<void> {
 
   // Create Account
   app.post(
-    '/accounts/',
+    `/${CONFIG.httpCollection.accounts}/`,
     async (
       req: Request<{}, {}, CreateAccountRequest>,
       res: Response<EdgeAccount | string>

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Button, Form } from 'react-bootstrap'
 
+import { createAcount } from '../lib/api'
 import { CreateAccountDetails } from './CreateAccountDetails'
 
 type SubmitEvent = React.ChangeEvent<HTMLFormElement>
@@ -9,10 +10,20 @@ export const CreateAccountScene: React.FC<{}> = (): React.ReactElement => {
   const [username, setUsername] = React.useState<string>('')
   const [password, setPassword] = React.useState<string>('')
   const [pin, setPin] = React.useState<string>('')
+  const [successMessage, setSuccessMessage] = React.useState<string>('')
+  const [errorMessage, setErrorMessage] = React.useState<string>('')
 
   const submit = (event: SubmitEvent): void => {
     event.preventDefault()
-    console.log(username, password, pin)
+    createAcount({ username, password, pin })
+      .then((message: string) => {
+        setSuccessMessage(message)
+        console.log(successMessage)
+      })
+      .catch(error => {
+        setErrorMessage(error.message)
+        console.log(errorMessage)
+      })
   }
 
   return (
