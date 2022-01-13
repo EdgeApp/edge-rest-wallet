@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 
 import * as React from 'react'
 import { Button, Form } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 
 interface MainSceneState {
   balances: {}
@@ -127,6 +128,7 @@ export class MainScene extends React.Component<{}, MainSceneState> {
       <div>
         <h1> Edge Rest Wallet </h1>
         <p> App </p>
+        <Link to="/create-account">Create Account</Link>
         <Form>
           <Form.Group>
             <Form.Label>Wallet Type</Form.Label>

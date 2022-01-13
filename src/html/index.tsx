@@ -1,6 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { BrowserRouter } from 'react-router-dom'
 
-import { MainScene } from './components/MainScene'
+import { Router } from './components/Router'
 
-ReactDOM.render(<MainScene />, document.getElementById('root'))
+ReactDOM.render(
+  <BrowserRouter>
+    <Router />
+  </BrowserRouter>,
+  document.getElementById('root')
+)
