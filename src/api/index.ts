@@ -13,7 +13,7 @@ import {
 import bitcoinPlugins from 'edge-currency-bitcoin'
 import express from 'express'
 
-import CONFIG from '../config.json'
+import CONFIG from '../../config.json'
 addEdgeCorePlugins(bitcoinPlugins)
 lockEdgeCorePlugins()
 
