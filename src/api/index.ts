@@ -9,13 +9,18 @@ import {
   lockEdgeCorePlugins,
   makeEdgeContext
 } from 'edge-core-js'
+import currencyPlugins from 'edge-currency-accountbased'
 import bitcoinPlugins from 'edge-currency-bitcoin'
+import moneroPlugins from 'edge-currency-monero'
 import express, { Request, Response } from 'express'
 
 import CONFIG from '../../config.json'
+import { createWallets } from '../util/app'
 import { checkCreateUser } from '../util/validations'
 
 addEdgeCorePlugins(bitcoinPlugins)
+addEdgeCorePlugins(currencyPlugins)
+addEdgeCorePlugins(moneroPlugins)
 lockEdgeCorePlugins()
 
 interface CreateAccountRequest {
@@ -23,6 +28,13 @@ interface CreateAccountRequest {
   password: string
   pin: string
 }
+
+interface CreateWalletsRequest {
+  username: string
+  password: string
+  currencies: string[]
+}
+
 async function main(): Promise<void> {
   const app = express()
 
@@ -30,7 +42,10 @@ async function main(): Promise<void> {
   const context: EdgeContext = await makeEdgeContext({
     apiKey: CONFIG.apiKey,
     appId: CONFIG.appId,
-    plugins: CONFIG.plugins
+    plugins: CONFIG.plugins,
+    logSettings: {
+      defaultLogLevel: 'silent'
+    }
   })
 
   // Log in to some user:
@@ -54,6 +69,24 @@ async function main(): Promise<void> {
       try {
         checkCreateUser(username, password, pin)
         res.json(await context.createAccount(username, password, pin))
+        return
+      } catch (error) {
+        res.status(400).send(error.message)
+      }
+    }
+  )
+
+  // Create Wallets
+  app.post(
+    `/${CONFIG.httpCollection.wallets}/`,
+    async (
+      req: Request<{}, {}, CreateWalletsRequest>,
+      res: Response<EdgeCurrencyWallet[] | string>
+    ) => {
+      try {
+        const { username, password, currencies } = req.body
+        const userAccount = await context.loginWithPassword(username, password)
+        res.json(await createWallets(userAccount, currencies))
         return
       } catch (error) {
         res.status(400).send(error.message)
