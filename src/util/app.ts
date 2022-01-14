@@ -23,3 +23,13 @@ export const createWallets = async (
 
   return out
 }
+
+export const addTokens = async (
+  account: EdgeAccount,
+  walletId: string,
+  currencyCodes: string[]
+): Promise<EdgeCurrencyWallet> => {
+  const wallet: EdgeCurrencyWallet = account.currencyWallets[walletId]
+  await wallet.changeEnabledTokens(currencyCodes)
+  return wallet
+}
