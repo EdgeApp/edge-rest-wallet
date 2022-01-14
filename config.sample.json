@@ -13,7 +13,9 @@
     "balances": "",
     "transactions": "",
     "spend": "",
-    "wallets": ""
+    "wallets": "",
+    "walletsTokens": "wallets/tokens",
+    "currencyTokenList": "accounts/currencyTokenList"
   },
   "plugins": {
     "binance": true,

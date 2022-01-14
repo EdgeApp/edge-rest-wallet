@@ -1,4 +1,19 @@
-import type { EdgeAccount, EdgeCurrencyWallet } from 'edge-core-js'
+import type {
+  EdgeAccount,
+  EdgeCurrencyConfig,
+  EdgeCurrencyWallet,
+  EdgePluginMap
+} from 'edge-core-js'
+
+interface CurrencyDetails {
+  pluginId: string
+  displayName: string
+}
+
+export interface CurrencyTokenList {
+  currencies: CurrencyDetails[]
+  tokens: {}
+}
 
 const DEFAULT_ISO_FIAT = 'iso:USD'
 
@@ -33,3 +48,35 @@ export const addTokens = async (
   await wallet.changeEnabledTokens(currencyCodes)
   return wallet
 }
+
+const getCurrencyList = (
+  currencyConfig: EdgePluginMap<EdgeCurrencyConfig>
+): CurrencyDetails[] => {
+  const currencies = Object.keys(currencyConfig)
+  return currencies.map(currency => ({
+    pluginId: currencyConfig[currency].currencyInfo.pluginId,
+    displayName: currencyConfig[currency].currencyInfo.displayName
+  }))
+}
+
+const getTokenList = (
+  currencyConfig: EdgePluginMap<EdgeCurrencyConfig>
+): {} => {
+  const tokens = {}
+  const currencies = Object.keys(currencyConfig)
+  currencies.forEach((currency: string) => {
+    const { currencyInfo } = currencyConfig[currency]
+    if (currencyInfo.metaTokens.length > 0) {
+      tokens[currencyInfo.pluginId] = currencyInfo.metaTokens
+    }
+  })
+
+  return tokens
+}
+
+export const getCurrencyTokenList = (
+  account: EdgeAccount
+): CurrencyTokenList => ({
+  currencies: getCurrencyList(account.currencyConfig),
+  tokens: getTokenList(account.currencyConfig)
+})

@@ -15,7 +15,12 @@ import moneroPlugins from 'edge-currency-monero'
 import express, { Request, Response } from 'express'
 
 import CONFIG from '../../config.json'
-import { addTokens, createWallets } from '../util/app'
+import {
+  addTokens,
+  createWallets,
+  CurrencyTokenList,
+  getCurrencyTokenList
+} from '../util/app'
 import { checkCreateUser } from '../util/validations'
 
 addEdgeCorePlugins(bitcoinPlugins)
@@ -113,6 +118,17 @@ async function main(): Promise<void> {
         const userAccount = await context.loginWithPassword(username, password)
         const wallet = await addTokens(userAccount, walletId, tokens)
         return res.json(`Succesfully updated ${wallet.name ?? ''} tokens`)
+      } catch (error) {
+        return res.status(400).send(error.message)
+      }
+    }
+  )
+  // Get Currency and Token List
+  app.get(
+    `/${CONFIG.httpCollection.currencyTokenList}/`,
+    (_, res: Response<CurrencyTokenList>) => {
+      try {
+        return res.json(getCurrencyTokenList(account))
       } catch (error) {
         return res.status(400).send(error.message)
       }
