@@ -1,4 +1,5 @@
 import CONFIG from '../../../config.json'
+import { CurrencyTokenList } from '../../util/app'
 
 interface CreateUserData {
   username: string
@@ -8,13 +9,14 @@ interface CreateUserData {
 
 const apiURL = `${CONFIG.httpProtocol}://${CONFIG.httpApiDev}:${CONFIG.httpPort}`
 
-const processResponse = async (response: Response): Promise<string> => {
+const processResponse = async (response: Response): Promise<any> => {
   if (/^[4-5][0-9][0-9]$/.test(`${response.status}`)) {
     const json = await response.json()
     throw new Error(json.message)
   }
 
-  return 'Account successfully created'
+  const json = response.json()
+  return await json
 }
 
 export const createAcount = async (data: CreateUserData): Promise<string> => {
@@ -25,5 +27,14 @@ export const createAcount = async (data: CreateUserData): Promise<string> => {
     },
     body: JSON.stringify(data)
   })
+
+  await processResponse(response)
+  return 'Account Created Successfully'
+}
+
+export const getCurrencyTokenList = async (): Promise<CurrencyTokenList> => {
+  const response = await fetch(
+    `${apiURL}/${CONFIG.httpCollection.currencyTokenList}/`
+  )
   return await processResponse(response)
 }
