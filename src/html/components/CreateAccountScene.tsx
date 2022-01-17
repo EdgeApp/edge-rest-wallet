@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Button, Form } from 'react-bootstrap'
 
-import { createAcount } from '../lib/api'
+import { addWallets, createAccount } from '../lib/api'
 import { CreateAccountAddWallets } from './CreateAccountAddWallets'
 import { CreateAccountDetails } from './CreateAccountDetails'
 
@@ -18,7 +18,7 @@ export const CreateAccountScene: React.FC<{}> = (): React.ReactElement => {
 
   const submit = (event: SubmitEvent): void => {
     event.preventDefault()
-    createAcount({ username, password, pin })
+    createAccount({ username, password, pin })
       .then((message: string) => {
         setSuccessMessage(message)
         console.log(successMessage)
@@ -27,6 +27,7 @@ export const CreateAccountScene: React.FC<{}> = (): React.ReactElement => {
         setErrorMessage(error.message)
         console.log(errorMessage)
       })
+    addWallets(currencies).catch(error => console.log(error))
   }
 
   return (

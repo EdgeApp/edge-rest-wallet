@@ -1,3 +1,5 @@
+import { EdgeCurrencyWallet } from 'edge-core-js'
+
 import CONFIG from '../../../config.json'
 import { CurrencyTokenList } from '../../util/app'
 
@@ -19,7 +21,7 @@ const processResponse = async (response: Response): Promise<any> => {
   return await json
 }
 
-export const createAcount = async (data: CreateUserData): Promise<string> => {
+export const createAccount = async (data: CreateUserData): Promise<string> => {
   const response = await fetch(`${apiURL}/${CONFIG.httpCollection.accounts}/`, {
     method: 'POST',
     headers: {
@@ -36,5 +38,19 @@ export const getCurrencyTokenList = async (): Promise<CurrencyTokenList> => {
   const response = await fetch(
     `${apiURL}/${CONFIG.httpCollection.currencyTokenList}/`
   )
+  return await processResponse(response)
+}
+
+export const addWallets = async (
+  data: string[]
+): Promise<EdgeCurrencyWallet[]> => {
+  const response = await fetch(`${apiURL}/${CONFIG.httpCollection.wallets}/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+
   return await processResponse(response)
 }

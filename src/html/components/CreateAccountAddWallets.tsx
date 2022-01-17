@@ -45,10 +45,6 @@ export const CreateAccountAddWallets: React.FC<Props> = (
       setCurrencies(currencies.slice(0, currencies.length - 1))
   }
 
-  const sumbit = (): void => {
-    console.log(currencies)
-  }
-
   const renderCurrencyFormOptions = (): React.ReactNode => {
     return currencyTokenList.currencies.map(currency => (
       <option value={currency.pluginId} key={currency.pluginId}>
@@ -89,10 +85,6 @@ export const CreateAccountAddWallets: React.FC<Props> = (
         </Button>
       )}
       {currencies.map((_, index) => renderCurrencyForm(index))}
-      <br />
-      <Button variant="primary" onClick={sumbit}>
-        Submit
-      </Button>
     </div>
   )
 }
