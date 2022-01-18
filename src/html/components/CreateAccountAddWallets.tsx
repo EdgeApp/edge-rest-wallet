@@ -5,15 +5,19 @@ import { Button, Form } from 'react-bootstrap'
 
 import { CurrencyTokenList } from '../../util/app'
 import { getCurrencyTokenList } from '../lib/api'
+import { CreateAccountAddTokens, Token } from './CreateAccountAddTokens'
 
 interface Props {
   currencies: string[]
-  tokens: string[]
+  tokens: Token[]
   setCurrencies: (currencies: string[]) => void
-  setTokens: (tokens: string[]) => void
+  setTokens: (tokens: Token[]) => void
 }
 
 type FormEvent = React.ChangeEvent<HTMLSelectElement>
+
+const getIndexAndCurrency = (index: number, pluginId: string): string =>
+  `${index}-${pluginId}`
 
 export const CreateAccountAddWallets: React.FC<Props> = (
   props
@@ -22,10 +26,6 @@ export const CreateAccountAddWallets: React.FC<Props> = (
   const [currencyTokenList, setCurrencyTokenList] = useState<CurrencyTokenList>(
     { currencies: [], tokens: {} }
   )
-
-  // Just for the typescript unused warning
-  console.log(tokens)
-  console.log(setTokens)
 
   useEffect(() => {
     getCurrencyTokenList()
@@ -41,8 +41,92 @@ export const CreateAccountAddWallets: React.FC<Props> = (
     setCurrencies([...currencies, currencyTokenList.currencies[0].pluginId])
 
   const removeWallet = (): void => {
-    currencies.length > 0 &&
-      setCurrencies(currencies.slice(0, currencies.length - 1))
+    if (currencies.length > 0) {
+      const index = currencies.length - 1
+      const pluginId = currencies[index]
+      const tokenKey = getIndexAndCurrency(index, pluginId)
+      const token = tokens[tokenKey]
+      if (token != null) {
+        const { [tokenKey]: removed, ...rest } = tokens
+        setTokens({ ...rest })
+      }
+      setCurrencies(currencies.slice(0, index))
+    }
+  }
+
+  const addToken = (
+    indexAndCurrency: string,
+    tokenList: string[],
+    defaultTokenCode: string
+  ): void => {
+    if (tokenList == null) {
+      setTokens({ ...tokens, [indexAndCurrency]: [defaultTokenCode] })
+    } else {
+      setTokens({
+        ...tokens,
+        [indexAndCurrency]: [...tokenList, defaultTokenCode]
+      })
+    }
+  }
+
+  const removeToken = (indexAndCurrency: string, tokenList: string[]): void => {
+    if (tokenList != null && tokenList.length > 0) {
+      setTokens({
+        ...tokens,
+        [indexAndCurrency]: tokenList.slice(0, tokenList.length - 1)
+      })
+    }
+  }
+
+  const changeToken = (
+    indexAndCurrency: string,
+    tokenList: string[],
+    tokenIndex: number,
+    value: string
+  ): void => {
+    if (tokenList != null && tokenList.length > 0) {
+      const newTokenList = Object.assign([], tokenList, { [tokenIndex]: value })
+      setTokens({ ...tokens, [indexAndCurrency]: newTokenList })
+    }
+  }
+
+  const renderTokensForm = (index: number): React.ReactNode => {
+    const pluginId = currencies[index]
+    const indexAndCurrency = getIndexAndCurrency(index, pluginId)
+    const tokenList = tokens[indexAndCurrency]
+    const handleAddToken = (): void =>
+      addToken(
+        indexAndCurrency,
+        tokenList,
+        currencyTokenList.tokens[pluginId][0].currencyCode
+      )
+    const handleRemoveToken = (): void =>
+      removeToken(indexAndCurrency, tokenList)
+    const handleChangeToken = (tokenIndex: number, value: string): void =>
+      changeToken(indexAndCurrency, tokenList, tokenIndex, value)
+
+    return (
+      <>
+        <Button variant="primary" onClick={handleAddToken}>
+          +
+        </Button>
+        {tokenList != null && tokenList.length > 0 && (
+          <Button variant="secondary" onClick={handleRemoveToken}>
+            -
+          </Button>
+        )}
+        {tokenList != null &&
+          tokenList.map((_: string, tokenIndex: number) => (
+            <CreateAccountAddTokens
+              key={tokenIndex}
+              index={tokenIndex}
+              value={tokenList[tokenIndex]}
+              tokenList={currencyTokenList.tokens[pluginId]}
+              handleChangeToken={handleChangeToken}
+            />
+          ))}
+      </>
+    )
   }
 
   const renderCurrencyFormOptions = (): React.ReactNode => {
@@ -54,19 +138,23 @@ export const CreateAccountAddWallets: React.FC<Props> = (
   }
 
   const renderCurrencyForm = (index: number): React.ReactNode => {
-    const handleCurrency = (event: FormEvent): void =>
+    const handleCurrencyChange = (event: FormEvent): void =>
       setCurrencies(
         Object.assign([], currencies, { [index]: event.target.value })
       )
     return (
-      <Form.Select
-        aria-label="Select Currency"
-        value={currencies[index]}
-        onChange={handleCurrency}
-        key={index}
-      >
-        {renderCurrencyFormOptions()}
-      </Form.Select>
+      <div>
+        <Form.Select
+          aria-label="Select Currency"
+          value={currencies[index]}
+          onChange={handleCurrencyChange}
+          key={index}
+        >
+          {renderCurrencyFormOptions()}
+        </Form.Select>
+        {currencyTokenList.tokens[currencies[index]] != null &&
+          renderTokensForm(index)}
+      </div>
     )
   }
 

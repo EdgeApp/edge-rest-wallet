@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Button, Form } from 'react-bootstrap'
 
 import { addWallets, createAccount } from '../lib/api'
+import { Token } from './CreateAccountAddTokens'
 import { CreateAccountAddWallets } from './CreateAccountAddWallets'
 import { CreateAccountDetails } from './CreateAccountDetails'
 
@@ -12,7 +13,7 @@ export const CreateAccountScene: React.FC<{}> = (): React.ReactElement => {
   const [password, setPassword] = React.useState<string>('')
   const [pin, setPin] = React.useState<string>('')
   const [currencies, setCurrencies] = React.useState<string[]>([])
-  const [tokens, setTokens] = React.useState<string[]>([])
+  const [tokens, setTokens] = React.useState<Token[]>([])
   const [successMessage, setSuccessMessage] = React.useState<string>('')
   const [errorMessage, setErrorMessage] = React.useState<string>('')
 
@@ -49,10 +50,10 @@ export const CreateAccountScene: React.FC<{}> = (): React.ReactElement => {
           setCurrencies={setCurrencies}
           setTokens={setTokens}
         />
+        <Button variant="primary" type="submit">
+          Submit
+        </Button>
       </Form>
-      <Button variant="primary" type="submit">
-        Submit
-      </Button>
     </div>
   )
 }
