@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Button, Form } from 'react-bootstrap'
 
-import { addWallets, createAccount } from '../lib/api'
+import { createAccount } from '../lib/api'
 import { Token } from './CreateAccountAddTokens'
 import { CreateAccountAddWallets } from './CreateAccountAddWallets'
 import { CreateAccountDetails } from './CreateAccountDetails'
@@ -9,9 +9,9 @@ import { CreateAccountDetails } from './CreateAccountDetails'
 type SubmitEvent = React.ChangeEvent<HTMLFormElement>
 
 export const CreateAccountScene: React.FC<{}> = (): React.ReactElement => {
-  const [username, setUsername] = React.useState<string>('')
-  const [password, setPassword] = React.useState<string>('')
-  const [pin, setPin] = React.useState<string>('')
+  const [username, setUsername] = React.useState<string>('foofoo1085')
+  const [password, setPassword] = React.useState<string>('P@ssw0rd12')
+  const [pin, setPin] = React.useState<string>('1234')
   const [currencies, setCurrencies] = React.useState<string[]>([])
   const [tokens, setTokens] = React.useState<Token[]>([])
   const [successMessage, setSuccessMessage] = React.useState<string>('')
@@ -19,7 +19,7 @@ export const CreateAccountScene: React.FC<{}> = (): React.ReactElement => {
 
   const submit = (event: SubmitEvent): void => {
     event.preventDefault()
-    createAccount({ username, password, pin })
+    createAccount({ username, password, pin }, currencies, tokens)
       .then((message: string) => {
         setSuccessMessage(message)
         console.log(successMessage)
@@ -28,7 +28,6 @@ export const CreateAccountScene: React.FC<{}> = (): React.ReactElement => {
         setErrorMessage(error.message)
         console.log(errorMessage)
       })
-    addWallets(currencies).catch(error => console.log(error))
   }
 
   return (
