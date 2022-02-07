@@ -4,8 +4,9 @@ import type {
   EdgeCurrencyWallet,
   EdgePluginMap
 } from 'edge-core-js'
+import { setTimeout } from 'timers/promises'
 
-import { setEnabledTokens } from './disklet.js'
+import { setEnabledTokens } from './disklet'
 
 interface CurrencyDetails {
   pluginId: string
@@ -23,7 +24,7 @@ export const createWallets = async (
   account: EdgeAccount,
   currencies: string[]
 ): Promise<EdgeCurrencyWallet[]> => {
-  const out: EdgeCurrencyWallet[] = []
+  const out: any[] = []
 
   for await (const currency of currencies) {
     const { currencyInfo } = account.currencyConfig[currency]
@@ -35,7 +36,8 @@ export const createWallets = async (
       keyOptions: format != null ? { format } : {}
     }
 
-    out.push(JSON.stringify(await account.createCurrencyWallet(type, opts)))
+    await setTimeout(1500)
+    out.push(await account.createCurrencyWallet(type, opts))
   }
 
   return out
