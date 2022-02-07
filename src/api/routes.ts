@@ -10,16 +10,16 @@ import { Express } from 'express-serve-static-core'
 
 import CONFIG from '../../config.json'
 import {
+  AddTokensRequest,
+  CreateAccountRequest,
+  CreateWalletsRequest
+} from '../types/api'
+import {
   addTokens,
   createWallets,
   CurrencyTokenList,
   getCurrencyTokenList
 } from '../util/app'
-import {
-  AddTokensRequest,
-  CreateAccountRequest,
-  CreateWalletsRequest
-} from '../util/types'
 import { checkCreateUser } from '../util/validations'
 
 export const routes = (
