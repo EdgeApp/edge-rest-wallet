@@ -1,42 +1,17 @@
-import bodyParser from 'body-parser'
-import cors from 'cors'
 import {
-  addEdgeCorePlugins,
   EdgeAccount,
   EdgeContext,
   EdgeCurrencyWallet,
   EdgeSpendInfo,
-  EdgeTransaction,
-  lockEdgeCorePlugins,
-  makeEdgeContext
+  EdgeTransaction
 } from 'edge-core-js'
-import bitcoinPlugins from 'edge-currency-bitcoin'
-import express from 'express'
+import { Express } from 'express-serve-static-core'
 
-import CONFIG from '../config.json'
-addEdgeCorePlugins(bitcoinPlugins)
-lockEdgeCorePlugins()
-
-async function main(): Promise<void> {
-  const app = express()
-
-  // Start the core, with Bitcoin enabled:
-  const context: EdgeContext = await makeEdgeContext({
-    apiKey: CONFIG.apiKey,
-    appId: CONFIG.appId,
-    plugins: CONFIG.plugins
-  })
-
-  // Log in to some user:
-  const account: EdgeAccount = await context.loginWithPassword(
-    CONFIG.username,
-    CONFIG.password,
-    { otpKey: CONFIG.otpKey ?? undefined }
-  )
-
-  app.use(bodyParser.json({ limit: '1mb' }))
-  app.use(cors())
-
+export const routes = (
+  app: Express,
+  context: EdgeContext,
+  account: EdgeAccount
+): void => {
   // Getting wallet balances based on type of wallet
   app.get('/balances/', async (req, res, next) => {
     const type: string = req.query.type
@@ -108,12 +83,4 @@ async function main(): Promise<void> {
       res.status(500).send('Internal server error')
     }
   })
-
-  app.listen(CONFIG.httpPort, () => {
-    console.log('Server is listening on:', CONFIG.httpPort)
-  })
 }
-main().catch(e => {
-  console.error(e)
-  process.exit(1)
-})
