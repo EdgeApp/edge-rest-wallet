@@ -31,6 +31,21 @@ Clone Repo
 git clone https://github.com/EdgeApp/edge-rest-wallet.git
 ```
 
+Do dependency installation with Yarn
+
+```sh
+yarn install
+```
+
+Make your own config.json from config.sample.json
+
+```sh
+cp config.sample.json config.json
+```
+
+Make sure to fill out the *apiKey*, *username* and *password* as those are required to run the API.
+Username and Password is your edge wallet login credentials.
+
 ## Manage server using forever-service
 
  You can then use `forever-service` or similar tools to install the software on your server machine.
